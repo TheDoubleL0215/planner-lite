@@ -64,12 +64,15 @@ class EditDetails extends StatefulWidget {
 
     final ClassSubjectController _classSubjectController = Get.put(ClassSubjectController());
 
+    Set _selectedExamType = {""};
+
     @override
     void initState() {
       super.initState();
       _titleController.text = "${widget.subjectName}${widget.type != "Reminder" ? " - " : ""}${widget.type != "Reminder" ? getTypeText(widget.type, widget.examType) : ""}";
       _detailsController.text = widget.details;
       _dateController.text = widget.date;
+      _selectedExamType = {widget.examType};
     }
 
     void handleActionInsideModal(String value) {
@@ -98,6 +101,9 @@ class EditDetails extends StatefulWidget {
 
   @override
   Widget build(BuildContext context) {
+
+
+
     return PopScope(
       onPopInvoked: (didPop) async {
       if (didPop) {
@@ -131,7 +137,7 @@ class EditDetails extends StatefulWidget {
                       subject: widget.type == "Reminder" ? _titleController.text.toString() : widget.subjectName,
                       subjectColor: "Color(${widget.subjectDecorator.toString()})",
                       type: widget.type.toString(),
-                      examType: widget.examType.toString(),
+                      examType: widget.type == "Exam" ? _selectedExamType.first : widget.examType.toString(),
                       gotFromId: 0,
                       completed: widget.checked,
                       date: _dateController.text.toString(),
@@ -147,7 +153,7 @@ class EditDetails extends StatefulWidget {
           ],
         ),
         body: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: EdgeInsets.all(8.0),
           child: Column(
             children: [
               Padding(
@@ -180,6 +186,40 @@ class EditDetails extends StatefulWidget {
               
                 },
               ),
+              widget.type == "Exam" ? Padding(
+                padding: EdgeInsets.symmetric(vertical: 20.0),
+                child: Container(
+                  width: double.maxFinite,
+                  child: SegmentedButton(
+                    showSelectedIcon: false,
+                  segments: <ButtonSegment>[
+                    ButtonSegment(
+                        value: "ropdolgozat",
+                        //icon: SvgPicture.asset("lib/icons/ExamIcon.svg", height: 26, width: 26),
+                        label: Text("Röpdoga", maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(),)
+                        ),
+                    ButtonSegment(
+                        value: "feleles",
+                        //icon: SvgPicture.asset("lib/icons/feleles_icon.svg", height: 26, width: 26),
+                        label: Text("Felelés"),
+                    ),
+                    ButtonSegment(
+                        value: "temazaro",
+                        //icon: SvgPicture.asset("lib/icons/temazaro_icon.svg", height: 26, width: 26),
+                        label: Text("Témazáró", style: TextStyle(overflow: TextOverflow.fade),),
+                        ),
+                  ],
+                  selected: _selectedExamType,
+                  style: ButtonStyle(visualDensity: VisualDensity(horizontal: -4)),
+                  onSelectionChanged: (Set newSelection){
+                    setState(() {
+                      _selectedExamType = newSelection;
+                    });
+                    print(_selectedExamType);
+                  }
+                              ),
+                ),
+              ):Container(),
               TextField(
                 onTap: (){
                   _selectDate();
