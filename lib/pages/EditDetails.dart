@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:planner_lite/controllers/ClassSubject_controller.dart';
 import 'package:planner_lite/model/Task.dart';
 
 class EditDetails extends StatefulWidget {
-  const EditDetails({super.key, required this.subjectName, required this.subjectDecorator, required this.taskId, required this.date, required this.type, required this.examType, required this.checked, required this.details});
+  const EditDetails({super.key, required this.subjectName, required this.subjectDecorator, required this.taskId, required this.date, required this.type, required this.examType, required this.checked, required this.details, required this.subjectIcon});
 
   final String subjectName;
   final String subjectDecorator;
+  final String subjectIcon;
   final int taskId;
   final String date;
   final String type;
@@ -69,7 +71,7 @@ class EditDetails extends StatefulWidget {
     @override
     void initState() {
       super.initState();
-      _titleController.text = "${widget.subjectName}${widget.type != "Reminder" ? " - " : ""}${widget.type != "Reminder" ? getTypeText(widget.type, widget.examType) : ""}";
+      _titleController.text = "${widget.subjectName}";
       _detailsController.text = widget.details;
       _dateController.text = widget.date;
       _selectedExamType = {widget.examType};
@@ -136,6 +138,7 @@ class EditDetails extends StatefulWidget {
                       id: widget.taskId,
                       subject: widget.type == "Reminder" ? _titleController.text.toString() : widget.subjectName,
                       subjectColor: "Color(${widget.subjectDecorator.toString()})",
+                      subjectIcon: widget.subjectIcon,
                       type: widget.type.toString(),
                       examType: widget.type == "Exam" ? _selectedExamType.first : widget.examType.toString(),
                       gotFromId: 0,
@@ -155,10 +158,24 @@ class EditDetails extends StatefulWidget {
         body: Padding(
           padding: EdgeInsets.all(8.0),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Chip(
+                  elevation: 0,
+                  avatar: SvgPicture.asset(
+                    "lib/icons/${getTypeIcon(widget.type, widget.examType)}_icon.svg",
+                    height: 25,
+                    width: 25,
+                    ),
+                  label: Text(getTypeText(widget.type, widget.examType), style: TextStyle(fontSize: 18))
+                ),
+              ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: TextField(
+                  maxLines: null,
                   readOnly: widget.type != "Reminder" ? true : false,
                   style: TextStyle(
                     fontSize: 32
@@ -250,6 +267,8 @@ class EditDetails extends StatefulWidget {
               TextButton(
                 onPressed: (){
                   _classSubjectController.checkTask(widget.taskId);
+                  _classSubjectController.getClasses();
+                  _classSubjectController.getTasks();
                   Get.back();
                 },
                 child: Text(widget.checked == 0 ? "Feladat kész!" : "Feladat befejezetlen", style: TextStyle(fontSize: 16),)

@@ -6,6 +6,7 @@ class Task{
   int? id;
   String? subject;
   String? subjectColor;
+  String? subjectIcon;
   String? type;
   String? date;
   String? examType;
@@ -17,6 +18,7 @@ class Task{
     this.id,
     this.subject, 
     this.subjectColor,
+    this.subjectIcon,
     this.type,
     this.date,
     this.examType,
@@ -29,6 +31,7 @@ class Task{
     id = json["id"];
     subject = json["subject"];
     subjectColor = json["subjectColor"];
+    subjectIcon = json["subjectIcon"];
     type = json["type"];
     date = json["date"];
     examType = json["examType"];
@@ -42,6 +45,7 @@ class Task{
     data["id"] = this.id;
     data["subject"] = this.subject;
     data["subjectColor"] = this.subjectColor;
+    data["subjectIcon"] = this.subjectIcon;
     data["type"] = this.type;
     data["date"] = this.date;
     data["examType"] = this.examType;

@@ -1,44 +1,37 @@
 import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
-class ClassSubject{
+class Subject{
   int? id;
-  int? day;
-  int? hour;
   String? subject;
   String? subjectColor;
+  String? teacherName;
   String? subjectIcon;
-  String? haveHomework;
   
-  ClassSubject({
+  Subject({
     this.id,
-    this.day,
-    this.hour,
     this.subject, 
     this.subjectColor,
-    this.subjectIcon,
-    this.haveHomework
+    this.teacherName,
+    this.subjectIcon
   });
 
-  ClassSubject.fromJson(Map<String, dynamic> json){
+  Subject.fromJson(Map<String, dynamic> json){
     id = json["id"];
-    day = json["day"];
-    hour = json["hour"];
     subject = json["subject"];
     subjectColor = json["subjectColor"];
-    subjectIcon = json["subjectIcon"];
-    haveHomework = json["haveHomework"];
+    teacherName = json["teacherName"];
+    subjectIcon =json["subjectIcon"];
   }
 
   Map<String, dynamic> toJson(){
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data["id"] = this.id;
-    data["day"] = this.day;
-    data["hour"] = this.hour;
     data["subject"] = this.subject;
     data["subjectColor"] = this.subjectColor;
+    data["teacherName"] = this.teacherName;
     data["subjectIcon"] = this.subjectIcon;
-    data["haveHomework"] = this.haveHomework;
 
     return data;
   }

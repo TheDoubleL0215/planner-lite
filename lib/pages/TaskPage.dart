@@ -89,50 +89,37 @@ class _TaskPageState extends State<TaskPage> {
                 ),
                 elements: _classSubjectController.tasksList,
                 itemBuilder: (context, element) {
-                  return GestureDetector(
-                    onTap: () {
-                      Get.to(() => EditDetails(
-                        subjectName: element.subject.toString(),
-                        examType: element.examType!,
-                        taskId: element.id!,
-                        date: element.date!,
-                        type: element.type!,
-                        subjectDecorator: element.subjectColor.toString().substring(6, element.subjectColor.toString().length - 1),
-                        checked: element.completed!,
-                        details: element.details!,
-                        ));
+                  return Dismissible(
+                    background: Container(
+                      alignment: Alignment.centerLeft,
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.delete_outline_rounded),
+                          Text("Törlés")
+                        ],
+                      ),
+                    ),
+                    direction: DismissDirection.none,
+                    key: ValueKey(element),
+                    onDismissed: (DismissDirection direction) {
+                      setState(() {
+                        _classSubjectController.removeTask(element.id!);
+                      });
+                      _classSubjectController.tasksList.remove(element);
                     },
-                    child: Dismissible(
-                      background: Container(
-                        alignment: Alignment.centerLeft,
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Icon(Icons.delete_outline_rounded),
-                            Text("Törlés")
-                          ],
-                        ),
-                      ),
-                      direction: DismissDirection.startToEnd,
-                      key: ValueKey(element),
-                      onDismissed: (DismissDirection direction) {
-                        setState(() {
-                          _classSubjectController.removeTask(element.id!);
-                        });
-                        _classSubjectController.tasksList.remove(element);
-                      },
-                      child: TaskClassTile(
-                        subjectName: element.subject.toString(),
-                        examType: element.examType!,
-                        taskId: element.id!,
-                        date: element.date!,
-                        type: element.type!,
-                        subjectDecorator: element.subjectColor.toString().substring(6, element.subjectColor.toString().length - 1),
-                        checked: element.completed!,
-                        details: element.details!,
-                      ),
+                    child: TaskClassTile(
+                      subjectName: element.subject.toString(),
+                      subjectIcon: element.subjectIcon.toString(),
+                      examType: element.examType!,
+                      taskId: element.id!,
+                      date: element.date!,
+                      type: element.type!,
+                      subjectDecorator: element.subjectColor.toString().substring(6, element.subjectColor.toString().length - 1),
+                      checked: element.completed!,
+                      details: element.details!,
                     ),
                   );
                 }
@@ -272,6 +259,7 @@ class _TaskPageState extends State<TaskPage> {
                                       task: Task(
                                         subject: _titleController.text,
                                         subjectColor: "Color(0xff2196f3)",
+                                        subjectIcon: "noIcon",
                                         type: "Reminder",
                                         examType: "",
                                         date: _dateController.text,

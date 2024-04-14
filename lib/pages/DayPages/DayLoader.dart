@@ -31,6 +31,8 @@ class _DayLoaderState extends State<DayLoader> {
       children: [
         Expanded(
           child: Obx((){
+            print("EZ lenne a cuccos: ${widget.loadDayValue}");
+            _classSubjectController.currentDayPageSelected.value = widget.loadDayValue;
             print("From obx ${_classSubjectController.classesList}");
             bool hasTodayClass = !_classSubjectController.classesList.any((element) => element.day == widget.loadDayValue);
             if(hasTodayClass){
@@ -68,6 +70,7 @@ class _DayLoaderState extends State<DayLoader> {
                   if(_classSubjectController.classesList[index].day == widget.loadDayValue){
                     return ClassTile(
                       subjectName: _classSubjectController.classesList[index].subject.toString(), 
+                      subjectIcon: _classSubjectController.classesList[index].subjectIcon.toString(),
                       classPeriod: _classSubjectController.classesList[index].hour!, 
                       classId: _classSubjectController.classesList[index].id!,
                       dayId: _classSubjectController.classesList[index].day!,

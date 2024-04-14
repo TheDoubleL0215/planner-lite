@@ -11,21 +11,21 @@ import 'package:planner_lite/model/Task.dart';
 import 'package:planner_lite/pages/CreateClass.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-
-import 'Preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ClassTile extends StatefulWidget {
-  const ClassTile({super.key, required this.classId, required this.subjectName, required this.classPeriod, required this.subjectDecorator, required this.dayId, required this.haveHomework});
+  const ClassTile({super.key, required this.classId, required this.subjectName, required this.classPeriod, required this.subjectDecorator, required this.dayId, required this.haveHomework, required this.subjectIcon});
 
   final String subjectName;
   final String subjectDecorator;
+  final String subjectIcon;
   final int classPeriod;
   final int classId;
   final int dayId;
   final String haveHomework;
 
   static const TextStyle ClassNameFontStyle =
-    TextStyle(fontSize: 26, fontWeight: FontWeight.bold);
+    TextStyle(fontSize: 24, fontWeight: FontWeight.bold);
 
   @override
   State<ClassTile> createState() => _ClassTileState();
@@ -117,7 +117,7 @@ class _ClassTileState extends State<ClassTile> {
                     child: Container(
                       alignment: Alignment.center,
                       child: SvgPicture.asset(
-                        "lib/icons/${widget.subjectName.toLowerCase()}.svg",
+                        "lib/icons/${widget.subjectIcon}.svg",
                         height: 32,
                         width: 32,
                       ),
@@ -272,6 +272,7 @@ Future<dynamic> showExamDialog(BuildContext context){
                             task: Task(
                               subject: widget.subjectName,
                               subjectColor: widget.subjectDecorator,
+                              subjectIcon: widget.subjectIcon,
                               type: "Exam",
                               examType: _selectedExamType.first,
                               date: _dateController.text,
@@ -356,7 +357,7 @@ Future<dynamic> showClassModal(BuildContext context) {
                 child: Container(
                   alignment: Alignment.center,
                   child: SvgPicture.asset(
-                    "lib/icons/${widget.subjectName.toLowerCase()}.svg",
+                    "lib/icons/${widget.subjectIcon}.svg",
                     height: 32,
                     width: 32,
                   ),
@@ -416,12 +417,26 @@ Future<dynamic> showClassModal(BuildContext context) {
                       borderRadius: BorderRadius.only(topLeft: Radius.circular(15), bottomLeft: Radius.circular(15), bottomRight: Radius.circular(5), topRight: Radius.circular(5))
                     )
                   ),
-                  onPressed: () {
-                    HapticFeedback.vibrate();
-                    setState(() {
-                      localHaveHomework = !localHaveHomework;
-                    });
-                    _classSubjectController.addHomework(widget.classId);
+                  onPressed: () async {
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    if(localHaveHomework == false){
+                      if(prefs.getBool("advancedHomework") ?? false){
+                        showDescDialog(context);
+                      }else{
+                        HapticFeedback.vibrate();
+                        _classSubjectController.addHomework(widget.classId, "");
+                        setState(() {
+                          localHaveHomework = !localHaveHomework;
+                        });
+                      }
+                      
+                    }else{
+                      HapticFeedback.vibrate();
+                      _classSubjectController.addHomework(widget.classId, "");
+                      setState(() {
+                        localHaveHomework = !localHaveHomework;
+                      });
+                    }
                   },
                   child: Padding(
                     padding: EdgeInsets.all(8.0),
@@ -484,5 +499,86 @@ Future<dynamic> showClassModal(BuildContext context) {
       });
   });
   }
+  
+  Future<dynamic> showDescDialog(BuildContext context){
+
+  TextEditingController _descController = TextEditingController();
+
+  bool _dateFieldValidator = false;
+
+  return showDialog(
+    context: context, 
+    builder: (context){
+    return  StatefulBuilder(
+        builder: (BuildContext context, setState) {
+          return Dialog(
+      insetPadding: const EdgeInsets.all(10),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: Container(
+          width: double.infinity,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Text("Leírás hozzáadása", style: TextStyle(fontSize: 32, ),),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                  controller: _descController,
+                  decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.blue,
+                        style: BorderStyle.solid,
+                        width: 1,
+                      )
+                    ),
+                    prefixIcon: Icon(Icons.notes),
+                    labelText: 'Leírás',
+                    filled: false,
+                  ),
+                ),
+              ),
+              
+            Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => {
+                        Get.back()
+                      },
+                      child: Text("Mégse"),
+                    ),
+                    FilledButton(
+                      onPressed: () => {
+                        HapticFeedback.vibrate(),
+                        _classSubjectController.addHomework(widget.classId, _descController.text),
+                        Get.back(),
+                        Get.back()
+                      }, 
+                      child: Text("Mentés"),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );;
+        },
+      );
+    }
+  );
+
+
+}
 }
 

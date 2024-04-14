@@ -7,13 +7,12 @@ import 'package:planner_lite/pages/CreateClass.dart';
 import 'package:get/get.dart';
 import 'package:planner_lite/pages/EditDetails.dart';
 
-import 'Preferences.dart';
-
 class TaskClassTile extends StatefulWidget {
-  const TaskClassTile({super.key, required this.taskId, required this.subjectName, required this.subjectDecorator, required this.date, required this.type, required this.examType, required this.checked, required this.details});
+  const TaskClassTile({super.key, required this.taskId, required this.subjectName, required this.subjectDecorator, required this.date, required this.type, required this.examType, required this.checked, required this.details, required this.subjectIcon});
 
   final String subjectName;
   final String subjectDecorator;
+  final String subjectIcon;
   final int taskId;
   final String date;
   final String type;
@@ -80,85 +79,99 @@ class _ClassTileState extends State<TaskClassTile> {
     if(type == "Reminder"){
       return "";
     }
-    return widget.subjectName.toLowerCase();
+    return widget.subjectIcon.toLowerCase();
   }
-
 
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: 0, bottom: 8, top: 8, right: 8),
-      child: Container(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 5),
-                child: Row(
-                  children: [
-                    Checkbox(
-                      value: isChecked, 
-                      onChanged: (newValue){
-                        setState(() {
-                          isChecked = newValue!;
-                        });
-                        _classSubjectController.checkTask(widget.taskId);
-                        isChecked! ? print("Kicsekkolva") : 0;
-                      }),
-                    Padding(
-                      padding: EdgeInsets.all(widget.type == "Reminder" ? 0.0 : 3.0),
-                      child: widget.type != "Reminder" ? Container(
-                        alignment: Alignment.center,
-                        child: SvgPicture.asset(
-                          "lib/icons/${getSubjectIcon(widget.type)}.svg",
-                          height: 36,
-                          width: 36,
-                        ),
-                      ):null
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        alignment: Alignment.center,
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Row(
-                            children: [
-                              SizedBox(
-                                width: 150,
-                                child: Text(
-                                  widget.subjectName,
-                                  style: TextStyle(fontSize: widget.type == "Reminder" ? 20 : 24,  decoration: isChecked == true ? TextDecoration.lineThrough : null, fontWeight: FontWeight.bold),
-                                  textAlign: TextAlign.start,
+    return GestureDetector(
+      onTap: () {
+        Get.to(() => EditDetails(
+          subjectName: widget.subjectName.toString(),
+          examType: widget.examType!,
+          taskId: widget.taskId!,
+          date: widget.date!,
+          type: widget.type!,
+          subjectDecorator: widget.subjectDecorator.toString(),
+          subjectIcon: widget.subjectIcon.toString(),
+          checked: widget.checked!,
+          details: widget.details!,
+          ));
+      },
+      child: Padding(
+        padding: EdgeInsets.only(left: 0, bottom: 8, top: 8, right: 8),
+        child: Container(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: widget.type == "homework" || widget.type == "Reminder" ? EdgeInsets.symmetric(vertical: 5, horizontal: 0) : EdgeInsets.only(top: 5, left: 10, bottom: 5, right: 0),
+                  child: Row(
+                    children: [
+                      widget.type == "homework" || widget.type == "Reminder" ? Checkbox(
+                        value: isChecked, 
+                        onChanged: (newValue){
+                          setState(() {
+                            isChecked = newValue!;
+                          });
+                          _classSubjectController.checkTask(widget.taskId);
+                          isChecked! ? print("Kicsekkolva") : 0;
+                        }):Container(),
+                      Padding(
+                        padding: EdgeInsets.all(widget.type == "Reminder" ? 0.0 : 3.0),
+                        child: widget.type != "Reminder" ? Container(
+                          alignment: Alignment.center,
+                          child: SvgPicture.asset(
+                            "lib/icons/${getSubjectIcon(widget.type)}.svg",
+                            height: 36,
+                            width: 36,
+                          ),
+                        ):null
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: Align(
+                            alignment: Alignment.centerLeft,
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 150,
+                                  child: Text(
+                                    widget.subjectName,
+                                    style: TextStyle(fontSize: widget.type == "Reminder" ? 20 : 24,  decoration: isChecked == true ? TextDecoration.lineThrough : null, fontWeight: FontWeight.bold),
+                                    textAlign: TextAlign.start,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                    Spacer(),
-                    Column(
-                      children: [
-                        Container(
-                          alignment: Alignment.center,
-                          child: SvgPicture.asset(
-                            "lib/icons/${getTypeIcon(widget.type, widget.examType)}_icon.svg",
-                            height: 36*0.618,
-                            width: 36*0.618,
+                      Spacer(),
+                      Column(
+                        children: [
+                          Container(
+                            alignment: Alignment.center,
+                            child: SvgPicture.asset(
+                              "lib/icons/${getTypeIcon(widget.type, widget.examType)}_icon.svg",
+                              height: 36*0.618,
+                              width: 36*0.618,
+                            ),
                           ),
-                        ),
-                
-                        Text(getTypeText(widget.type, widget.examType), style: TextStyle(color: Theme.of(context).colorScheme.onBackground, fontSize: 12),),
-                      ],
-                    ), // A jobb oldali igazításhoz
-                  ],
+                  
+                          Text(getTypeText(widget.type, widget.examType), style: TextStyle(color: Theme.of(context).colorScheme.onBackground, fontSize: 12),),
+                        ],
+                      ), // A jobb oldali igazításhoz
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

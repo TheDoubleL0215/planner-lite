@@ -1,6 +1,7 @@
 import 'package:planner_lite/controllers/ClassSubject_controller.dart';
 import 'package:planner_lite/database/database_service.dart';
 import 'package:planner_lite/model/ClassSubject.dart';
+import 'package:planner_lite/model/Subject.dart';
 import 'package:planner_lite/model/Task.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -11,6 +12,7 @@ class SubjectsDB {
 
   static final String tableName = 'subjects';
   static final String taskTableName = 'tasks';
+  static final String subjectTable = "subjectTable";
 
   Future<void> createTable(Database database) async {
     await database.execute("""CREATE TABLE IF NOT EXISTS $tableName (
@@ -19,6 +21,7 @@ class SubjectsDB {
       "hour" INTEGER NOT NULL,
       "subject" TEXT NOT NULL,
       "subjectColor" TEXT NOT NULL,
+      "subjectIcon" TEXT NOT NULL,
       "haveHomework" TEXT NOT NULL,
       PRIMARY KEY ("id" AUTOINCREMENT)
     )""");
@@ -26,12 +29,21 @@ class SubjectsDB {
       "id" INTEGER NOT NULL,
       "subject" TEXT NOT NULL,
       "subjectColor" TEXT NOT NULL,
+      "subjectIcon" TEXT NOT NULL,
       "type" TEXT NOT NULL,
       "date" TEXT NOT NULL,
       "examType" TEXT,
       "details" TEXT,
       "gotFromId" INTEGER NOT NULL,
       "completed" INTEGER NOT NULL,
+      PRIMARY KEY ("id" AUTOINCREMENT)
+    )""");
+    await database.execute("""CREATE TABLE IF NOT EXISTS $subjectTable (
+      "id" INTEGER NOT NULL,
+      "subject" TEXT NOT NULL,
+      "subjectColor" TEXT NOT NULL,
+      "teacherName" TEXT NOT NULL,
+      "subjectIcon" TEXT NOT NULL,
       PRIMARY KEY ("id" AUTOINCREMENT)
     )""");
   }
@@ -46,6 +58,11 @@ class SubjectsDB {
     return await database.insert(taskTableName, task!.toJson()) ?? 1;
   }
 
+  static Future<int> insertSubject(Subject? subjectModal) async {
+    final database = await DatabaseService().database;
+    return await database.insert(subjectTable, subjectModal!.toJson()) ?? 1;
+  }
+
   static Future<int> updateTask(Task? task, int taskId) async {
     final database = await DatabaseService().database;
     return await database.update(taskTableName, task!.toJson(), where: 'id=?', whereArgs: [taskId]) ?? 1;
@@ -55,6 +72,12 @@ class SubjectsDB {
     final database = await DatabaseService().database;
     return await database.query(tableName, orderBy: 'hour');
   }
+
+  static Future<List<Map<String, dynamic>>> querySubjects() async {
+    final database = await DatabaseService().database;
+    return await database.query(subjectTable);
+  }
+
 
   static Future<List<Map<String, dynamic>>> queryTasks() async {
     final database = await DatabaseService().database;
@@ -99,6 +122,11 @@ class SubjectsDB {
     return await database.delete(tableName, where: 'id=?', whereArgs: [classId]);
   }
 
+  static deleteSubject(int subjectId) async {
+    final database = await DatabaseService().database;
+    return await database.delete(subjectTable, where: 'id=?', whereArgs: [subjectId]);
+  }
+
   static removeTask(int taskId) async {
     final database = await DatabaseService().database;
     var prevHwValue = await database.rawQuery('SELECT * FROM $taskTableName WHERE id = ?', [taskId]);
@@ -125,7 +153,7 @@ class SubjectsDB {
     }
   }
 
-  static Future<void> addHomework(int classId) async {
+  static Future<void> addHomework(int classId, String description) async {
     final database = await DatabaseService().database;
 
     print("DayID: ${classId}");
@@ -156,12 +184,13 @@ class SubjectsDB {
           var newHomeworkTask = Task(
             subject: target.first["subject"].toString(),
             subjectColor: target.first["subjectColor"].toString(),
+            subjectIcon: target.first["subjectIcon"].toString(),
             type: "homework",
             date: formattedDate,
             examType: '',
             gotFromId: classId,
             completed: 0,
-            details: ''
+            details: description
           );
 
           await database.insert(taskTableName, newHomeworkTask.toJson());
@@ -174,12 +203,13 @@ class SubjectsDB {
           var newHomeworkTask = Task(
             subject: target.first["subject"].toString(),
             subjectColor: target.first["subjectColor"].toString(),
+            subjectIcon: target.first["subjectIcon"].toString(),
             type: "homework",
             date: formattedDate,
             examType: '',
             gotFromId: classId,
             completed: 0,
-            details: ''
+            details: description
           );
 
           await database.insert(taskTableName, newHomeworkTask.toJson());

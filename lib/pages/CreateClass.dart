@@ -212,7 +212,7 @@ class _CreateClassState extends State<CreateClass> {
   _addClassToDb() async{
     print("NormalIndex ${_selectedDayValue ?? ''}");
     print("Indexe a napnak ${daysList.indexOf(_selectedDayValue ?? '')}");
-    int value = await _classSubjectController.addClass(
+    _classSubjectController.addClass(
       classSubject:ClassSubject(
         subject: _selectedSubjectValue ?? '',
         day: daysList.indexOf(_selectedDayValue ?? ''),
@@ -221,7 +221,6 @@ class _CreateClassState extends State<CreateClass> {
         haveHomework: "0"
       )
     );
-    print("my id is"+" $value");
     Get.back();
   }
 
